@@ -110,7 +110,7 @@ https://github.com/wondertrader
 
 2. 配置数据行情机
 
-   用文本编辑工具打开：***d:>\wonertrader\wtpy\demos\\datakit_fut\mdparsers.YAML***
+   用文本编辑工具打开：***d:>\wondertrader\wtpy\demos\\datakit_fut\mdparsers.YAML***
 
    添加账号信息保存后退出（行情前置不检测账号信息，用期货行情前置地址保证数据稳定）
 
@@ -126,7 +126,7 @@ https://github.com/wondertrader
 
 1. 配置**CTA**引擎策略交易
 
-   用文本编辑工具打开：***d:>\wonertrader\wtpy\demos\\cta_fut\tdtraders.YAML***
+   用文本编辑工具打开：***d:>\wondertrader\wtpy\demos\\cta_fut\tdtraders.YAML***
 
    添加账号信息保存后退出（交易地址是仿真前置地址，登录时需要验证账号信息）
 
