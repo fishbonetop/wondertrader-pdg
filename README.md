@@ -112,7 +112,7 @@ https://github.com/wondertrader
 
    用文本编辑工具打开：***d:>\wondertrader\wtpy\demos\\datakit_fut\mdparsers.YAML***
 
-   添加账号信息保存后退出（行情前置不检测账号信息，用期货行情前置地址保证数据稳定）
+   添加账号信息保存后退出（行情前置不检测账号信息，改用期货公司行情前置地址保证数据稳定）
 
    ![](image/md.png)
 
