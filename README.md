@@ -36,7 +36,7 @@ https://github.com/wondertrader
 
   ​	
 
-## 配置安装：
+# 配置安装：
 
 ### 一、wtpy应用框架
 
@@ -186,7 +186,7 @@ https://github.com/wondertrader
 
    启动执行：**WtRunner**
 
-#### 配置参数说明：
+### 三、WonderTrader配置参数说明
 
 1. 
 2. 
@@ -203,14 +203,16 @@ https://github.com/wondertrader
 
 
 
-## 交易回测：
+# 交易回测：
 
 1. wtpy应用框架
 2. wtcpp应用框架
 
-## CTA引擎策略实现示例：
+# 策略实现：
 
-#### wtpy应用交易策略
+### 一、CTA引擎
+
+#### 【1】wtpy应用交易策略
 
 1. DualThrust策略
 
@@ -305,12 +307,14 @@ https://github.com/wondertrader
                    context.stra_log_text('亏损超过百分之一，下一交易日平仓')
    ```
 
-#### wtcpp应用交易策略
+#### 【2】wtcpp应用交易策略
 
 1. DualThrust策略
 2. MACD策略
 
-## HTF引擎策略实现示例：
+### 二、HTF引擎
 
-1. 
-2. 
+【1】wtpy应用交易策略
+
+【2】wtcpp应用交易策略
+
