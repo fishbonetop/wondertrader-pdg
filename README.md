@@ -80,7 +80,7 @@
 
 2. 配置数据行情机
 
-   用文本编辑工具打开：*demos\\datakit_fut\mdparsers.YAML*
+   用文本编辑工具打开：***d:>\wonertrader\wtpy\demos\\datakit_fut\mdparsers.YAML***
 
    添加账号信息保存后退出（行情前置不检测账号信息，用期货行情前置地址保证数据稳定）
 
@@ -88,7 +88,7 @@
 
 3. 启动行情机
 
-   执行文件所在目录：*demos\\datakit_fut*
+   执行文件所在目录：***demos\\datakit_fut***
 
    启动执行： **runDT**
 
@@ -96,7 +96,7 @@
 
 1. 配置**CTA**引擎策略交易
 
-   用文本编辑工具打开：*demos\\cta_fut\tdtraders.YAML*
+   用文本编辑工具打开：***d:>\wonertrader\wtpy\demos\\cta_fut\tdtraders.YAML***
 
    添加账号信息保存后退出（交易地址是仿真前置地址，登录时需要验证账号信息）
 
@@ -104,7 +104,7 @@
 
 2. 启动策略应用
 
-   执行文件所在目录：*demos\\cta_fut*
+   执行文件所在目录：***demos\\cta_fut***
 
    启动执行：**run**
 
