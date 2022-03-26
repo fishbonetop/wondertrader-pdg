@@ -174,7 +174,7 @@ https://github.com/wondertrader
 
 5. 配置CTA策略交易应用
 
-   用文本编辑工具打开：***d:>\wondertrader\wtcpp\dist\\\WtRunnerCta\\tdtraders.YAML***
+   用文本编辑工具打开：***d:>\wondertrader\wtcpp\dist\\WtRunnerCta\\tdtraders.YAML***
 
    添加账号信息保存后退出（交易地址是仿真前置地址，登录时需要验证账号信息）
 
