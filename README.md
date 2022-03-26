@@ -6,8 +6,6 @@
 
 **关于WonderTrader开源量化交易开发者：**
 
-------
-
 Wesley 开发者（知乎频道）
 
 https://www.zhihu.com/people/yanguoye/posts																					
@@ -15,7 +13,12 @@ https://www.zhihu.com/people/yanguoye/posts
 WonderTrader（官方github）
 
 https://github.com/wondertrader
-																								
+
+​		
+
+------
+
+​																						
 
 ## **功能简介：**
 
