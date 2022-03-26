@@ -27,24 +27,6 @@ https://github.com/wondertrader
 - 风险控制机制
 - 高速tick级别回测模块			
 
-
-
-#### `wtpy`简介：
-
-- [wtpy](https://github.com/wondertrader/wtpy)是构建在`WonderTrader`核心模块之上的，使用`Python3`开发的`WonderTrader`的`Python3`子框架
-
-- `Python`作为量化领域最流行的语言，在时序数据处理上有许多非常受欢迎的强大的第三方库
-
-- `Python`作为一种解释型语言，代码编写和调试都非常方便，不需要编译就可以直接运行
-
-- `Python`的跨平台属性也使`Python`可以应用到更多的场景中
-
-- `wtpy`主要功能是作为`WonderTrader`在`Python`语言的外延
-
-- 同时`wtpy`还内置了一个强大的监控服务组件`WtMonSvr`。该组件提供了远程的`webui`的监控界面，可以实时监控策略组合的运行情况，还提供全天`24×7`的自动调度服务，为你的交易保驾护航。
-
-  
-
 ## 配置安装：
 
 ### 一、wtpy应用框架
