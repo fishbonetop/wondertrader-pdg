@@ -16,8 +16,6 @@ https://github.com/wondertrader
 
 ------
 
-
-
 ## 功能简介：
 
 - WonderTrade 开源开发框架基于C++语言开发，支持*windows*和*linux*双平台系统
