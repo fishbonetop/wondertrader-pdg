@@ -1,4 +1,4 @@
-# WonderTrader 简明手册
+# WonderTrader 简明使用手册
 
 ***版本 Ver 0.91***
 
