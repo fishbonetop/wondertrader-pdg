@@ -95,7 +95,7 @@ https://github.com/wondertrader
 2. 解压安装目录
 
    ```
-   d:>\wonertrader\wtpy
+   d:>\wondertrader\wtpy
    ```
 
    ![](image/wtpydir.png)	
