@@ -54,11 +54,15 @@ https://github.com/wondertrader
    4、输入pip list，检查安装了哪些第三方的安装包。
    ```
 
-4. 配置pip国内源
+4. 配置pip国内镜像源
 
    ```
    c:>\pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
    ```
+
+   其它镜像源：
+
+   ​	https://mirrors.aliyun.com/pypi/simple/ 
 
 5. 安装wtpy支持包
 
