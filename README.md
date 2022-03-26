@@ -4,7 +4,7 @@
 
 
 
-**关于WonderTrader开源量化交易开发者：**
+**关于WonderTrader开源量化交易框架：**
 
 Wesley 开发者（知乎频道）
 
