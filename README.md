@@ -39,13 +39,15 @@ https://github.com/wondertrader
 
 1. 下载地址：https://www.python.org/downloads/
 
-2. 配置path环境变量：
+2. 配置path环境变量
 
    ​	配置教程：https://jingyan.baidu.com/article/b7001fe1dd1ccc0e7282dd36.html
 
    ![](image/winpath.png)
 
-3. 安装完成后，检查下python是否安装成功。检查方法如下：
+3. 安装完成后检查python是否安装成功
+
+   检查方法如下：
 
    ```
    1、打开cmd，输入python，点击回车。
@@ -71,7 +73,7 @@ https://github.com/wondertrader
    c:>\pip install itsdangerous==2.0.1
    ```
 
-6. 安装完成以后，输入以下命令，可以查看wtpy的版本号
+6. 以下命令查看wtpy的版本号
 
    ```
    C:>\pip show wtpy
@@ -79,7 +81,7 @@ https://github.com/wondertrader
 
 **2、下载WonderTrader量化开发框架**
 
-1. 下载wtpy应用框架：
+1. 下载wtpy应用框架
 
    ​        github地址：https://github.com/wondertrader/wtpy
 
@@ -127,10 +129,12 @@ https://github.com/wondertrader
 
 2. 启动策略应用
 
+   拷贝wtpy目录到cta_fut目录；
+
    执行文件所在目录：***demos\\cta_fut***
 
    启动执行：**run**
-
+   
    
 
 ### 二、wtcpp应用框架
