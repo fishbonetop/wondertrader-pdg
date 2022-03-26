@@ -1,14 +1,21 @@
 # WonderTrader 简明手册
 
- 																																		***版本 Ver 0.91***
+***版本 Ver 0.91***
 
-​																								**关于WonderTrader开源量化交易开发者：**
 
-​																								https://www.zhihu.com/people/yanguoye/posts
-​																								Wesley 开发者（知乎频道）
 
-​																								https://github.com/wondertrader
-​																								WonderTrader（官方github）
+**关于WonderTrader开源量化交易开发者：**
+
+Wesley 开发者（知乎频道）
+
+https://www.zhihu.com/people/yanguoye/posts
+
+​																								
+
+WonderTrader（官方github）
+
+https://github.com/wondertrader
+																								
 
 ## **功能简介：**
 
