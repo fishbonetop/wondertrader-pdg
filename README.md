@@ -14,13 +14,11 @@ WonderTrader（官方github）
 
 https://github.com/wondertrader
 
-​		
-
 ------
 
-​																						
 
-## **功能简介：**
+
+## 功能简介：
 
 - WonderTrade 开源开发框架基于C++语言开发，支持*windows*和*linux*双平台系统
 - 支持国内股票、期货等全品种交易市场
