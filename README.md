@@ -1,10 +1,18 @@
 # WonderTrader 简明手册
 
-​                                     																			***版本 Ver 0.91***
+ 																																		***版本 Ver 0.91***
+
+​																								**关于WonderTrader开源量化交易开发者：**
+
+​																								https://www.zhihu.com/people/yanguoye/posts
+​																								Wesley 开发者（知乎频道）
+
+​																								https://github.com/wondertrader
+​																								WonderTrader（官方github）
 
 ## **功能简介：**
 
-- WonderTrade 开发框架基于C++语言开发，支持*windows*和*linux*双平台系统
+- WonderTrade 开源开发框架基于C++语言开发，支持*windows*和*linux*双平台系统
 - 支持国内股票、期货等全品种交易市场
 - 策略应用层提供基于C++的**wtcpp**和*Python*的**wtpy**的应用框架
 - 提供四种交易引擎，以适应高频与跨周期多因子交易策略
