@@ -19,19 +19,28 @@ https://github.com/wondertrader
 ## 功能简介：
 
 - WonderTrade 开源开发框架基于C++语言开发，支持*windows*和*linux*双平台系统
+
 - 支持国内股票、期货等全品种交易市场
+
 - 策略应用层提供基于C++的**wtcpp**和*Python*的**wtpy**的两套应用框架
+
 - 提供四种交易引擎，以适应高频与跨周期多因子交易策略场景
+
 - 多账户、多产品团队配置管理方案
+
 - 图形化监控分析控制台
+
 - 风险控制机制
-- 高速tick级别回测模块			
+
+- 高速tick级别回测模块		
+
+  ​	
 
 ## 配置安装：
 
 ### 一、wtpy应用框架
 
-**1、安装 Python（版本3.6以上，32位或64位，windows7或windows10操作系统）**
+**【1】安装 Python（版本3.6以上，32位或64位，windows7或windows10操作系统）**
 
 1. 下载地址：https://www.python.org/downloads/
 
@@ -75,7 +84,7 @@ https://github.com/wondertrader
    C:>\pip show wtpy
    ```
 
-**2、下载WonderTrader量化开发框架**
+**【2】下载WonderTrader量化开发框架**
 
 1. 下载wtpy应用框架
 
@@ -91,7 +100,7 @@ https://github.com/wondertrader
 
    ![](image/wtpydir.png)	
 
-**3、启动wtpy数据行情应用（上期期货仿真交易环境 ）**
+**【3】启动wtpy数据行情应用（上期期货仿真交易环境 ）**
 
 1. 注册仿真账号
 
@@ -113,7 +122,7 @@ https://github.com/wondertrader
 
    启动执行： **runDT**
 
-**4、启动wtpy策略交易应用**
+**【4】启动wtpy策略交易应用**
 
 1. 配置**CTA**引擎策略交易
 
@@ -135,7 +144,51 @@ https://github.com/wondertrader
 
 ### 二、wtcpp应用框架
 
+1. 下载wtcpp应用框架
 
+   ​        github地址：https://github.com/wondertrader/wondertrader
+
+   ​        gitee地址：https://gitee.com/wondertrader/wondertrader
+
+2. 解压安装目录
+
+   ```
+   d:>\wondertrader\wtcpp
+   ```
+
+   ![](image/wtcppdir.png)
+
+3. 配置数据行情机
+
+   用文本编辑工具打开配置文件：***d:>\wondertrader\wtcpp\dist\QuoteFactory\mdparsers.YAML***
+
+   添加账号信息保存后退出（行情前置不检测账号信息，改用期货公司行情前置地址保证数据稳定）
+
+   ![](image/mdcpp.png)
+
+4. 启动行情机
+
+   执行文件所在目录：***dist\\QuoteFactory***
+
+   启动执行： **QuoteFactory**
+
+5. 配置CTA策略交易应用
+
+   用文本编辑工具打开：***d:>\wondertrader\wtcpp\dist\\\WtRunnerCta\\tdtraders.YAML***
+
+   添加账号信息保存后退出（交易地址是仿真前置地址，登录时需要验证账号信息）
+
+   ![](image/tdrcpp.png)
+
+6. 启动策略应用
+
+   执行文件所在目录：***dist\\WtRunnerCta***
+
+   启动执行：**WtRunner**
+
+7. 
+
+8. 
 
 ## 回测使用：
 
