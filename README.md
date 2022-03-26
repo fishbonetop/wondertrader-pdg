@@ -207,18 +207,105 @@ https://github.com/wondertrader
 
 ## CTA引擎策略实现示例：
 
+#### wtpy应用交易策略
+
 1. DualThrust策略
-2. 
 
-#### wtpy应用框架
+2. MACD策略
 
-1. 
-2. 
+   ```python
+   import pandas as pd
+   
+   from wtpy import BaseCtaStrategy
+   from wtpy import CtaContext
+   import numpy as np
+   import math
+   
+   class MACDStra(BaseCtaStrategy):
+       
+       def __init__(self, name:str, code:str, barCnt:int,
+                    period:str, margin_rate:float, money_pct:float, capital, k1:float,k2:float,days:int):
+           BaseCtaStrategy.__init__(self, name)
+   
+           self.__period__ = period
+           self.__bar_cnt__ = barCnt
+           self.__code__ = code
+           self.__margin_rate__ = margin_rate # 保证金比率
+           self.__money_pct__ = money_pct # 每次使用的资金比率
+           self.__capital__ = capital
+           self.today_entry = 0  # 限制每天开仓次数的参数
+           self.__k1__ = k1  # 短EMA的天数
+           self.__k2__ = k2  # 长EMA的天数
+           self.__days__ = days  #
+   
+       def on_init(self, context:CtaContext):
+           code = self.__code__    # 品种代码
+   
+           context.stra_get_bars(code, 'd1', self.__bar_cnt__, isMain=False)
+           context.stra_get_bars(code, self.__period__, self.__bar_cnt__, isMain = True)
+           context.stra_log_text("MACDStra inited")
+           pInfo = context.stra_get_comminfo(code)
+           self.__volscale__ = pInfo.volscale
+   
+   
+       def on_session_begin(self, context:CtaContext, curTDate:int):
+           self.trade_next_day = 2
+   
+       def on_calculate(self, context:CtaContext):
+           code = self.__code__    #品种代码
+           # 把策略参数读进来，作为临时变量，方便引用
+           curPrice = context.stra_get_price(code)
+           margin_rate = self.__margin_rate__
+           money_pct = self.__money_pct__
+           volscale = self.__volscale__
+           capital = self.__capital__
+           days = self.__days__
+           k1 = self.__k1__
+           k2 = self.__k2__
+           trdUnit_price = volscale * margin_rate * curPrice
+           curPos = context.stra_get_position(code)
+           if curPos == 0:
+               self.cur_money = capital + context.stra_get_fund_data(0)
+           df_bars = context.stra_get_bars(code, 'd1', self.__bar_cnt__, isMain=False)
+           closes = df_bars.closes
+           # 计算MACD
+           df = pd.DataFrame(columns=['closes'],data=closes)
+           df['EMA_short'] = df['closes'].ewm(span=k1,adjust=False).mean()
+           df['EMA_long'] = df['closes'].ewm(span=k2,adjust=False).mean()
+           df['DIF'] = df['EMA_short'] - df['EMA_long']
+           df['DEA'] = df['DIF'].ewm(span=days, adjust=False).mean()
+           df['MACD'] = (df['DIF']-df['DEA']) * 2
+           # 获取昨日收盘价
+           if df['MACD'].iloc[-1] > 0 and df['DIF'].iloc[-1] > 0 and curPos == 0:
+               context.stra_enter_long(code, math.floor(self.cur_money * money_pct / trdUnit_price)
+                                       , 'enterlong')
+               self.cur_money = capital + context.stra_get_fund_data(0)
+               context.stra_log_text('入场做多%s手' % (math.floor(self.cur_money * money_pct / trdUnit_price)))
+           elif df['MACD'].iloc[-1] < 0 and df['DIF'].iloc[-1] < 0 and curPos == 0:
+               context.stra_enter_short(code, math.floor(self.cur_money * money_pct / trdUnit_price)
+                                        , 'entershort')
+               self.cur_money = capital + context.stra_get_fund_data(0)
+               context.stra_log_text('入场做空%s手' % (math.floor(self.cur_money * money_pct / trdUnit_price)))
+           elif df['DIF'].iloc[-1] < 0 and curPos > 0:
+               context.stra_set_position(code, 0, 'clear')
+               context.stra_log_text('DIF < 0，平多')
+           elif df['DIF'].iloc[-1] > 0 and curPos < 0:
+               context.stra_set_position(code, 0, 'clear')
+               context.stra_log_text('DIF > 0，平空')
+           curTime = context.stra_get_time()
+           cur_money = capital + context.stra_get_fund_data(code)
+           if cur_money < self.cur_money * 0.99 and curPos != 0:
+               self.trade_next_day = 0
+           if curTime >= 1455 and curTime <= 1500:
+               if self.trade_next_day == 0:
+                   context.stra_set_position(code, 0, 'clear')
+                   context.stra_log_text('亏损超过百分之一，下一交易日平仓')
+   ```
 
-#### wtcpp应用框架
+#### wtcpp应用交易策略
 
-1. 
-2. 
+1. DualThrust策略
+2. MACD策略
 
 ## HTF引擎策略实现示例：
 
