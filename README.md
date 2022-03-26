@@ -60,6 +60,7 @@
 1. 下载wtpy应用框架：
 
    ​        github地址：https://github.com/wondertrader/wtpy
+
    ​           gitee地址：https://gitee.com/wondertrader/wtpy
 
 2. 解压安装目录
