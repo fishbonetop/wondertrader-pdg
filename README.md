@@ -22,7 +22,7 @@ https://github.com/wondertrader
 
 - 支持国内股票、期货等全品种交易市场
 
-- 策略应用层提供基于C++的**wtcpp**和*Python*的**wtpy**的两套应用框架
+- 策略应用层提供基于'C++'语言的**wtcpp**和Python语言的**wtpy**的两套应用框架
 
 - 提供四种交易引擎，以适应高频与跨周期多因子交易策略场景
 
@@ -55,10 +55,10 @@ https://github.com/wondertrader
    检查方法如下：
 
    ```
-   1、打开cmd，输入python，点击回车。
-   2、输入import this，欣赏下python之禅。
-   3、输入exit()，退出python。
-   4、输入pip list，检查安装了哪些第三方的安装包。
+   1、打开cmd，输入python，点击回车
+   2、输入import this，欣赏下python之禅
+   3、输入pip list，检查安装了哪些第三方的安装包
+   4、输入exit()，退出python
    ```
 
 4. 配置pip国内镜像源
