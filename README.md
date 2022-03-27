@@ -228,7 +228,7 @@ https://github.com/wondertrader
    当持仓为空的时候，价格突破上边界时，空仓出场，价格突破下边界时，保持仓位
    ```
 
-   策略图谱：
+   **策略图谱：**
 
    ![](image/DualThrust_wt.png)
 
