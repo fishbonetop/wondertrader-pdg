@@ -171,7 +171,7 @@ https://github.com/wondertrader
 
    启动执行： **QuoteFactory**
 
-5. 配置CTA策略交易应用
+5. 配置CTA引擎策略交易
 
    用文本编辑工具打开：***d:>\wondertrader\wtcpp\dist\\WtRunnerCta\\tdtraders.YAML***
 
