@@ -364,21 +364,23 @@ https://github.com/wondertrader
 
      ```python
      from wtpy import WtEngine,EngineType
-     from Strategies.DualThrust import StraDualThrust
+     from Strategies.DualThrust import StraDualThrust   #从文件夹里引入策略类
      
      from ConsoleIdxWriter import ConsoleIdxWriter
      
      if __name__ == "__main__":
          #创建一个运行环境，并加入策略
-         env = WtEngine(EngineType.ET_CTA)
-         env.init('../common/', "config.yaml")
+         env = WtEngine(EngineType.ET_CTA)       #交易引擎类实例化
+         env.init('../common/', "config.yaml")   #初始化配置信息方法
          
+         #DualThrust策略实现
          straInfo = StraDualThrust(name='pydt_IF', code="SHFE.ag.2206", barCnt=50, period="m1", days=30, k1=0.2, k2=0.2, isForStk=False)
-         env.add_cta_strategy(straInfo)
-         
+         env.add_cta_strategy(straInfo)   #添加CTA引擎的策略对象
+     
+         #输出
          idxWriter = ConsoleIdxWriter()
          env.set_writer(idxWriter)
-     
+         #执行
          env.run()
      
          kw = input('press any key to exit\n')
