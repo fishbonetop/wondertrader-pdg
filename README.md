@@ -54,7 +54,7 @@ https://github.com/wondertrader
 
    检查方法如下：
 
-   ```
+   ```css
    1、打开cmd，输入python，点击回车
    2、输入import this，欣赏下python之禅
    3、输入pip list，检查安装了哪些第三方的安装包
@@ -63,7 +63,7 @@ https://github.com/wondertrader
 
 4. 配置pip国内镜像源
 
-   ```
+   ```css
    c:>\pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
    ```
 
@@ -73,14 +73,14 @@ https://github.com/wondertrader
 
 5. 安装wtpy支持包
 
-   ```
+   ```css
    c:>\pip install wtpy --upgrade
    c:>\pip install itsdangerous==2.0.1
    ```
 
 6. 以下命令查看wtpy的版本号
 
-   ```
+   ```css
    C:>\pip show wtpy
    ```
 
@@ -94,7 +94,7 @@ https://github.com/wondertrader
 
 2. 解压安装目录
 
-   ```
+   ```css
    d:>\wondertrader\wtpy
    ```
 
@@ -151,7 +151,7 @@ https://github.com/wondertrader
 
 2. 解压安装目录
 
-   ```
+   ```css
    d:>\wondertrader\wtcpp
    ```
 
@@ -212,6 +212,175 @@ https://github.com/wondertrader
 #### 【1】wtpy应用交易策略
 
 1. DualThrust策略
+
+   **策略描述：**
+
+   ```css
+   LL:=N日最低价
+   HC:=N日最高收盘价
+   LC:=N日最低收盘价
+   触发值:=MAX(HH-LC,HC-LL)	
+   上边值:=OPEN + 触发值 * 系数
+   下边值:=OPEN - 触发值 * 系数
+   
+   当持仓为0的时候，价格突破上边界时，开多进场，价格突破下边界时，开空进场
+   当持仓为多的时候，价格突破上边界时，保持仓位，价格突破下边界时，多仓出场
+   当持仓为空的时候，价格突破上边界时，空仓出场，价格突破下边界时，保持仓位
+   ```
+
+   **策略实现：**
+
+   - 参数说明
+
+     ```css
+     name        策略实例名称
+     code        回测使用的合约代码
+     barCnt      要拉取的K线条数
+     period      要使用的K线周期，采用周期类型+周期倍数的形式，如m5表示5分钟线，d3表示3日线
+     days        策略算法参数，算法引用的历史数据条数
+     k1          策略算法参数，上边界系数
+     k2          策略算法参数，下边界系数
+     isForStk    DualThrust策略用于控制交易品种的代码
+     ```
+
+   - 策略源码
+
+     ```python
+     from wtpy import BaseStrategy
+     from wtpy import Context
+     
+     class StraDualThrust(BaseStrategy):
+     
+         def __init__(self, name:str, code:str, barCnt:int, period:str, days:int, k1:float, k2:float, isForStk:bool = False):
+             BaseStrategy.__init__(self, name)
+     
+             self.__days__ = days
+             self.__k1__ = k1
+             self.__k2__ = k2
+     
+             self.__period__ = period
+             self.__bar_cnt__ = barCnt
+             self.__code__ = code
+     
+             self.__is_stk__ = isForStk
+     
+         def on_init(self, context:Context):
+             code = self.__code__    #品种代码
+             if self.__is_stk__:
+                 code = code + "Q"
+     
+             context.stra_get_bars(code, self.__period__, self.__bar_cnt__, isMain = True)
+             context.stra_log_text("DualThrust inited")
+     
+         def on_calculate(self, context:Context):
+             '''
+             策略主调函数，所有的计算逻辑都在这里完成
+             '''
+             code = self.__code__    #品种代码
+             
+             # 交易单位，主要用于股票的适配
+             trdUnit = 1
+             if self.__is_stk__:
+                 trdUnit = 100
+     
+             #读取最近50条1分钟线(dataframe对象)
+             theCode = code
+             if self.__is_stk__:
+                 theCode = theCode + "Q"
+             df_bars = context.stra_get_bars(theCode, self.__period__, self.__bar_cnt__, isMain = True)
+     
+             #把策略参数读进来，作为临时变量，方便引用
+             days = self.__days__
+             k1 = self.__k1__
+             k2 = self.__k2__
+     
+             #平仓价序列、最高价序列、最低价序列
+             closes = df_bars["close"]
+             highs = df_bars["high"]
+             lows = df_bars["low"]
+     
+             #读取days天之前到上一个交易日位置的数据
+             hh = highs[-days:-1].max()
+             hc = closes[-days:-1].max()
+             ll = lows[-days:-1].min()
+             lc = closes[-days:-1].min()
+     
+             #读取今天的开盘价、最高价和最低价
+             lastBar = df_bars.iloc[-1]
+             openpx = lastBar["open"]
+             highpx = lastBar["high"]
+             lowpx = lastBar["low"]
+     
+             '''
+             !!!!!这里是重点
+             1、首先根据最后一条K线的时间，计算当前的日期
+             2、根据当前的日期，对日线进行切片,并截取所需条数
+             3、最后在最终切片内计算所需数据
+             '''
+     
+             #确定上轨和下轨
+             upper_bound = openpx + k1* max(hh-lc,hc-ll)
+             lower_bound = openpx - k2* max(hh-lc,hc-ll)
+     
+             #读取当前仓位
+             curPos = context.stra_get_position(code)/trdUnit
+     
+             if curPos == 0:
+                 if highpx >= upper_bound:
+                     context.stra_enter_long(code, 1*trdUnit, 'enterlong')
+                     context.stra_log_text("向上突破%.2f>=%.2f，多仓进场" % (highpx, upper_bound))
+                     #修改并保存
+                     self.xxx = 1
+                     context.user_save_data('xxx', self.xxx)
+                     return
+     
+                 if lowpx <= lower_bound and not self.__is_stk__:
+                     context.stra_enter_short(code, 1*trdUnit, 'entershort')
+                     context.stra_log_text("向下突破%.2f<=%.2f，空仓进场" % (lowpx, lower_bound))
+                     return
+             elif curPos > 0:
+                 if lowpx <= lower_bound:
+                     context.stra_exit_long(code, 1*trdUnit, 'exitlong')
+                     context.stra_log_text("向下突破%.2f<=%.2f，多仓出场" % (lowpx, lower_bound))
+                     #raise Exception("except on purpose")
+                     return
+             else:
+                 if highpx >= upper_bound and not self.__is_stk__:
+                     context.stra_exit_short(code, 1*trdUnit, 'exitshort')
+                     context.stra_log_text("向上突破%.2f>=%.2f，空仓出场" % (highpx, upper_bound))
+                     return
+     
+         def on_tick(self, context:Context, stdCode:str, newTick:dict):
+             return
+     ```
+
+   - 策略调用入口 
+
+     **run.py**
+
+     ```python
+     from wtpy import WtEngine,EngineType
+     from Strategies.DualThrust import StraDualThrust
+     
+     from ConsoleIdxWriter import ConsoleIdxWriter
+     
+     if __name__ == "__main__":
+         #创建一个运行环境，并加入策略
+         env = WtEngine(EngineType.ET_CTA)
+         env.init('../common/', "config.yaml")
+         
+         straInfo = StraDualThrust(name='pydt_IF', code="SHFE.ag.2206", barCnt=50, period="m1", days=30, k1=0.2, k2=0.2, isForStk=False)
+         env.add_cta_strategy(straInfo)
+         
+         idxWriter = ConsoleIdxWriter()
+         env.set_writer(idxWriter)
+     
+         env.run()
+     
+         kw = input('press any key to exit\n')
+     ```
+
+   
 
 2. MACD策略
 
