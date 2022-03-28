@@ -283,9 +283,9 @@ Ubuntu 18.04/20.04
 
 2、复制提示地址到浏览器执行
 
-用户名：**superman**
+用户：**superman**
 
-密   码：**Helloworld!**
+密码：**Helloworld!**
 
 ![](image/wtconsole.png)
 
