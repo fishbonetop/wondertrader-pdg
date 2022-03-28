@@ -38,9 +38,18 @@ https://github.com/wondertrader
 
 # 配置安装：
 
-### 一、wtpy应用框架
+**WonderTrade 适用操作系统：**
 
-**【1】安装 Python（版本3.6以上，32位或64位，windows7或windows10操作系统）**
+```c++
+windows7
+windows10
+centos7
+Ubuntu 18.04/20.04
+```
+
+# 一、wtpy应用框架
+
+**【1】安装 Python（版本3.6以上，32位或64位）**
 
 1. 下载地址：https://www.python.org/downloads/
 
@@ -194,7 +203,7 @@ https://github.com/wondertrader
 
 ```
 1、行情机执行启动时间早于开盘时间2分钟
-2、行情机关闭时间晚于16：00
+2、行情机关闭时间晚于16：30分钟
 3、启动行情机后再启动CTA引擎策略交易应用
 4、编辑YAML文件只允许使用空格
 5、自定义订阅品种注意品种名称格式
@@ -204,6 +213,12 @@ https://github.com/wondertrader
 
 1. wtpy应用框架
 2. wtcpp应用框架
+
+
+
+# 监控平台：
+
+![](image/wtconsole.png)
 
 # 策略实现：
 
@@ -253,10 +268,11 @@ https://github.com/wondertrader
      from wtpy import BaseStrategy
      from wtpy import Context
      
-     class StraDualThrust(BaseStrategy):
+     #策略继承自基础策略类BaseCtaStrategy，通过重写基类中的各个回调函数实现
+     class StraDualThrust(BaseStrategy):		#继承基础类
      
-         def __init__(self, name:str, code:str, barCnt:int, period:str, days:int, k1:float, k2:float, isForStk:bool = False):
-             BaseStrategy.__init__(self, name)
+         def __init__(self, name:str, code:str, barCnt:int, period:str, days:int, k1:float, k2:float, isForStk:bool = False):	#初始化外部传入的参数
+             BaseStrategy.__init__(self, name)	   
      
              self.__days__ = days
              self.__k1__ = k1
@@ -268,7 +284,7 @@ https://github.com/wondertrader
      
              self.__is_stk__ = isForStk
      
-         def on_init(self, context:Context):
+         def on_init(self, context:Context):		#订阅数据
              code = self.__code__    #品种代码
              if self.__is_stk__:
                  code = code + "Q"
@@ -370,17 +386,17 @@ https://github.com/wondertrader
      
      if __name__ == "__main__":
          #创建一个运行环境，并加入策略
-         env = WtEngine(EngineType.ET_CTA)       #交易引擎类实例化
-         env.init('../common/', "config.yaml")   #初始化配置信息方法
+         env = WtEngine(EngineType.ET_CTA)       #交易引擎类
+         env.init('../common/', "config.yaml")   #初始化配置
          
-         #DualThrust策略实现
+         #DualThrust策略
          straInfo = StraDualThrust(name='pydt_IF', code="SHFE.ag.2206", barCnt=50, period="m1", days=30, k1=0.2, k2=0.2, isForStk=False)
-         env.add_cta_strategy(straInfo)   #添加CTA引擎的策略对象
+         env.add_cta_strategy(straInfo)   #实盘可添加多个CTA引擎的策略对象
      
-         #输出
+         
          idxWriter = ConsoleIdxWriter()
          env.set_writer(idxWriter)
-         #执行
+         #策略执行
          env.run()
      
          kw = input('press any key to exit\n')
