@@ -40,14 +40,13 @@ https://github.com/wondertrader
 
 **WonderTrade 适用操作系统：**
 
-```c++
+```yaml
 windows7
 windows10
-centos7
-Ubuntu 18.04/20.04
+Ubuntu 18.04.3 LTS
 ```
 
-# 一、wtpy应用框架
+### 一、wtpy应用框架
 
 **【1】安装 Python（版本3.6以上，32位或64位）**
 
@@ -194,12 +193,9 @@ Ubuntu 18.04/20.04
 
    启动执行：**WtRunner**
 
-### 三、WonderTrader配置参数说明
 
-1. 
-2. 
 
-#### 使用注意事项：
+## *使用注意事项：*
 
 ```
 1、行情机执行启动时间早于开盘时间2分钟
@@ -208,6 +204,14 @@ Ubuntu 18.04/20.04
 4、编辑YAML文件只允许使用空格
 5、自定义订阅品种注意品种名称格式
 ```
+
+
+
+### 三、WonderTrader配置参数说明
+
+不同引擎的策略配置文件稍有不同，回测与仿真/实盘也有所区别。
+
+
 
 # 交易回测：
 
@@ -353,7 +357,7 @@ Ubuntu 18.04/20.04
      
              self.__is_stk__ = isForStk
      
-         def on_init(self, context:Context):		#订阅数据
+         def on_init(self, context:Context):		#订阅行情数据
              code = self.__code__    #品种代码
              if self.__is_stk__:
                  code = code + "Q"
