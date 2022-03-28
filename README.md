@@ -116,6 +116,10 @@ Ubuntu 18.04.3 LTS
 
    ​	*第一次使用仿真账号需更改一次账号密码*
 
+2. YAML配置文档教程
+
+   **YAML**语法规则：*https://www.runoob.com/w3cnote/yaml-intro.html*
+
 2. 配置数据行情机
 
    用文本编辑工具打开：***d:>\wondertrader\wtpy\demos\\datakit_fut\mdparsers.YAML***
@@ -201,7 +205,7 @@ Ubuntu 18.04.3 LTS
 1、行情机执行启动时间早于开盘时间2分钟
 2、行情机关闭时间晚于16：30分钟
 3、启动行情机后再启动CTA引擎策略交易应用
-4、编辑YAML文件只允许使用空格
+4、编辑YAML文件语法规则
 5、自定义订阅品种注意品种名称格式
 ```
 
