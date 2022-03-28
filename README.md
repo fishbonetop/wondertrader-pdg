@@ -18,21 +18,21 @@ https://github.com/wondertrader
 
 ## 功能简介：
 
-- WonderTrade 开源开发框架基于C++语言开发，支持*windows*和*linux*双平台系统
+- `WonderTrade` 开源开发框架基于`C++`语言开发，支持`windows`和`linux`双平台系统
 
 - 支持国内股票、期货等全品种交易市场
 
-- 策略应用层提供基于C++语言的**wtcpp**和Python语言的**wtpy**的两套应用框架
+- 策略应用层提供基于`C++`语言的**wtcpp**和`Python`语言的**wtpy**的两套应用框架
 
 - 提供四种交易引擎，以适应高频与跨周期多因子交易策略场景
 
 - 多账户、多产品团队配置管理方案
 
-- 图形化监控分析控制台
+- 图形化策略监控分析控制台
 
 - 风险控制机制
 
-- 高速tick级别回测模块		
+- 高速`cvs`与`tick`级别回测模块		
 
   
 
@@ -212,11 +212,80 @@ Ubuntu 18.04/20.04
 # 交易回测：
 
 1. wtpy应用框架
+
+   实盘时添加多个策略，但回测时仅允许同时回测一个策略。
+
+   **（i）回测配置**
+
+   用文本编辑工具打开：***d:>\wondertrader\wtcpp\demos\cta_fut_bt\\configbt.YAML***
+
+   - *修改回测时间范围*
+   - *回测使用**csv**或者**tick**模式*
+   - ***cta**引擎*
+
+   ![](image/btwtpy.png)
+
+   **（ii）启动回测**
+
+   执行所在目录：**demos\cta_fut_bt**
+
+   启动执行：**runBT**
+
+   ```python
+   from wtpy import WtBtEngine,EngineType              # 引入wtpy的回测引擎
+   from wtpy.apps import WtBtAnalyst                   # 引入分析工具
+   
+   from Strategies.DualThrust import StraDualThrust    # 引入自己的策略
+   
+   import os
+   import sys
+   os.chdir(sys.path[0])
+   if __name__ == "__main__":
+       #创建一个运行环境，制定回测引擎为CTA，并制定日志配置文件
+       engine = WtBtEngine(EngineType.ET_CTA,logCfg="logcfgbt.yaml")    
+       # 初始化引擎，指定基础配置文件目录，以及策略配置文件
+       engine.init('../common/', "configbt.yaml")
+       # 确定回测时间，也可以在策略配置文件中指定
+       engine.configBacktest(202201100930,202202011500)
+       # 提交配置
+       engine.commitBTConfig()
+   
+       # 初始化策略类
+       straInfo1 = StraDualThrust(name='pydt_cu', code="SHFE.cu.HOT", barCnt=50, period="m5", days=30, k1=0.1, k2=0.1, isForStk=False)
+       # 将策略加入到回测环境中
+       engine.set_cta_strategy(straInfo1)
+       # 开启回测
+       engine.run_backtest()
+   
+       # 初始化分析器
+       analyst = WtBtAnalyst()
+       # 添加需要分析的策略，指定策略回测结果所在目录
+       analyst.add_strategy("pydt_cu", folder="./outputs_bt/pydt_cu/", init_capital=500000, rf=0.02, annual_trading_days=240)
+       # 开始分析
+       analyst.run()
+   
+       kw = input('press any key to exit\n')
+       # 结束，释放资源
+       engine.release_backtest()
+   ```
+
 2. wtcpp应用框架
 
 
 
 # 监控平台：
+
+1、启动监控应用
+
+执行文件所在目录：***demos\\test_monitor***
+
+启动执行：**testMonSvr**
+
+2、复制提示地址到浏览器执行
+
+用户名：**superman**
+
+密   码：**Helloworld!**
 
 ![](image/wtconsole.png)
 
