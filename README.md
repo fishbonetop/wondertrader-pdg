@@ -211,19 +211,6 @@ Ubuntu 18.04.3 LTS
 
 
 
-### 三、输出日志分类
-
-各类日志的输出格式以及目录，包括以下几类日志
-
-- Executer 执行器日志
-- Parser 行情服务日志
-- Trader 交易服务日志
-- Strategy 策略日志
-- Risk 风控日志
-- generated 回测日志
-
-
-
 # 交易回测：
 
 1. wtpy应用框架
@@ -288,21 +275,7 @@ Ubuntu 18.04.3 LTS
 
 
 
-# 监控平台：
 
-1、启动监控应用
-
-执行文件所在目录：***demos\\test_monitor***
-
-启动执行：**testMonSvr**
-
-2、复制提示地址到浏览器执行
-
-用户：**superman**
-
-密码：**Helloworld!**
-
-![](image/wtconsole.png)
 
 # 策略实现：
 
@@ -589,4 +562,314 @@ Ubuntu 18.04.3 LTS
 【1】wtpy应用交易策略
 
 【2】wtcpp应用交易策略
+
+
+
+# 监控平台：
+
+1、启动监控应用
+
+执行文件所在目录：***demos\\test_monitor***
+
+启动执行：**testMonSvr**
+
+2、复制提示地址到浏览器执行
+
+用户：**superman**
+
+密码：**Helloworld!**
+
+![](image/wtconsole.png)
+
+# demo演示说明：
+
+Python下的demo主要演示不同环境下不同组件的使用
+提供了一个示例策略，DualThrust，股票和期货都用这个策略
+
+- cta_arbitrage_bt 期货套利回测demo √
+
+- cta_fut 期货CTA实盘demo，配置的是SIMNOW通道 √
+
+- cta_fut_bt 期货回测demo √
+
+- cta_fut_rl 强化学习训练demo √
+
+- cta_optimizer CTA策略优化器demo √
+
+- cta_step_by_step CTA策略开箱即用demo，by安东尼Q不了
+
+- cta_stk 股票CTA实盘demo，配置的是XTP的仿真通道 √
+
+- cta_stk_bt 股票回测demo √
+
+- ctp_loader 合约加载器demo √
+
+- datakit_allday 全天候数据组件demo
+
+- datakit_fut 期货数据组件demo √
+
+- datakit_stk 股票数据组件demo √
+
+- hft_fut 期货高频实盘demo √
+
+- hft_fut_bt 期货高频回测demo √
+
+- hft_fut_mocker 期货高频本地仿真demo √
+
+- sel_fut_bt 期货SEL引擎回测demo √
+
+- test_dataexts 数据扩展模块demo √
+
+- test_datahelper 数据辅助模块demo √
+
+- test_extmodules python外接行情和执行模块demo √
+
+- test_hotpicker WtHotPicker的用法示例 √
+
+- test_monitor WtMonSvr的用法示例 √
+
+- cta_unit_test CTA策略接口的单元测试demo √
+
+  
+
+### **一、配置文件**
+
+**cta_fut_bt 期货回测demo**
+
+> 解析器配置文件dtcfg
+> 以 *simnow* 通道为例，将********改成自己的simnow账号，然后修改*code*字段为自己要订阅的合约，合约代码规则为"市场代码.合约代码"
+>
+> ```
+> "parsers":[
+>    {
+>        "active":true, //是否启用
+>        "module":"ParserCTP.dll",  //模块文件名，linux下为libParserCTP.so
+>        "front":"tcp://180.168.146.187:10111", //行情前置
+>        "broker":"9999", 
+>        "user":"********",
+>        "pass":"********",
+>        "code":"CFFEX.IF2005,SHFE.au2012"
+>    }
+> ]
+> ```
+>
+> 数据落地模块配置dtcfg
+>
+> ```
+> "writer":{
+>    "path":"E:/FUT_Data",  //数据存储的路径
+>    "savelog":true,        //是否同时输出csv格式的数据
+>    "async":true,          //是否异步，异步会把数据提交到缓存队列，然后由独立线程进行处理
+>    "groupsize":100        //数据条数分组大小，每处理这么多条就会输出一条日志
+> }
+> ```
+>
+> 广播配置dtcfg.json（目前只开放了内存块直接广播）
+>
+> ```
+> "broadcaster":{
+>    "active":true, //是否启用
+>    "bport":3997,  //udp监听端口
+>    "broadcast":[
+>        {
+>            "host":"255.255.255.255",  //广播地址
+>            "port":9001,               //广播端口
+>            "type":2                   //广播类型,0-纯文本格式,1-json格式,2-内存块直接广播
+>        }
+>    ]
+> }
+> ```
+
+
+
+**cta_fut 期货CTA实盘demo**
+
+> 配置文件config
+>
+> 数据读取配置中的路径修改为数据组件里配置的路径
+>
+> ```
+> "data":{
+>    "store":{
+>        "path":"./STK_Data/"   //这里改为数据组件的存储路径
+>    }
+> }
+> ```
+>
+> 行情通道中的接收端口和接收地址
+>
+> ```
+> "parsers":[
+>    {
+>        "active":true,
+>        "id":"parser1",
+>        "module":"ParserUDP.dll",
+>        "host":"127.0.0.1",    //udp广播的地址
+>        "bport":9001,          //udp广播的端口
+>        "sport":3997,          //udp监听的端口
+>        "filter":""            //市场过滤器，根据需要配置，如CFFEX,SHFE，可针对不同的市场配置不同的行情通道
+>    }
+> ]
+> ```
+>
+> 交易通道的配置
+>
+> ```
+> "traders":[
+>    {
+>        "active":true,
+>        "id":"simnow",
+>        "module":"TraderXTP.dll",
+> 
+>        "host":"120.27.164.69",    //以下为交易模块专用配置
+>        "port":"6001",
+>        "user":"********",
+>        "pass":"********",
+>        "protocol":1,
+>        "clientid":1,
+>        "hbinterval":15,
+>        "buffsize":128,
+>        "quick":true,
+> 
+>        "riskmon": //交易通道风控配置
+>        {
+>            "active":true,
+>            "policy":
+>            {
+>                "default": //默认策略，可以针对品种进行专门设置，格式如CFFEX.IF
+>                {
+>                    "order_times_boundary": 20,    //单位时间最高下单次数，如10s内下单20次
+>                    "order_stat_timespan": 10,     //下单次数统计时间，单位秒
+>                    
+>                    "cancel_times_boundary": 20,   //单位时间最高撤单次数，如10s内撤单20次
+>                    "cancel_stat_timespan": 10,    //撤单次数统计时间
+>                    "cancel_total_limits": 470     //总的最大撤单次数
+>                }
+>            }
+>        }
+>    }
+> ]
+> ```
+>
+> 执行器的配置，可以根据需要配置多个执行器，执行器和交易通道一对一绑定
+>
+> ```
+> "executers":[
+>    {
+>        "active":true, //是否启用
+>        "id":"exe0",
+>        "scale": 1,    //放大倍数 
+>        "policy":      //执行策略
+>        {
+>            "default":{    //默认执行单元，也可以根据品种设置如CFFEX.IF
+>                "name":"WtExeFact.WtSimpExeUnit",  //执行单元名（工厂名.执行单元名）
+>                "offset": 0,   //下单价格与基准价的偏移量，买入+，卖出-
+>                "expire": 40,  //未成交订单超时时间，单位秒
+>                "opposite": true   //是否使用对手价作为基准价，false时为最新价
+>            }
+>        },
+>        "trader":"simnow"  //绑定的交易通道id
+>    }
+> ]
+> ```
+>
+> 交易环境的配置
+>
+> ```
+> "env":{
+>    "name":"cta",              //确定使用cta引擎，还是hft引擎
+>    "product":{                //生产环境的配置
+>        "session":"SD0930"     //!!cta总调度的会话时间模板，可以在sessions.json里找到
+>    },
+>    "filters":"filters.json",  //组合过滤器，用于临时控制某个策略或品种的信号
+>    "fees":"fees_stk.json",    //佣金模板
+>    "riskmon":{                //组合风控设置
+>        "active":true,
+>        "module":"WtRiskMonFact.dll",  //风控策略模板名
+>        "name":"SimpleRiskMon",        //风控策略名，框架会根据这个策略名创建风控策略实例
+>        "calc_span":5,                 //以下是风控策略自己的参数
+>        "risk_span": 30,
+>        "risk_scale": 0.3,
+>        "basic_ratio": 101,
+>        "inner_day_fd":20.0,
+>        "inner_day_active":true,
+>        "multi_day_fd":60.0,
+>        "multi_day_active":false,
+>        "base_amount": 5000000
+>    }
+> }
+> ```
+>
+> 自动开平策略的配置文件actpolicy
+> 以股指为例，股指平今手续费很高，所以开平优先级顺序为：平昨>开仓>平今
+> 如果是上期黄金和白银等品种，平今为0，则优先级顺序为：平今>平昨>开仓
+>
+> ```
+> "stockindex":{ //开平策略名称，随意定，不要重复
+>   "order":[   //开平顺序设定
+>   	{
+>   		"action":"closeyestoday",   //首先平昨，这样仓位不会一直增加，减少保证金占用
+>   		"limit":0                   //平昨手数限制，0为不限制
+>   	},
+>   	{
+>   		"action":"open",            //然后再开仓
+>   		"limit":500                 //开仓限制为500手
+>   	},
+>   	{
+>   		"action":"closetoday",      //最后平今
+>   		"limit":0
+>   	}
+>   ],
+>   "filters":["CFFEX.IF","CFFEX.IC","CFFEX.IH"]    //适用品种为IF、IC、IH
+> }
+> ```
+>
+> 交易所品种配置说明commodities_stk
+>
+> ```
+> {
+>    "SSE": {
+>        "ETF": {
+>            "category": 0, //
+>            "covermode": 0, //
+>            "exchg": "SSE", //交易所代码
+>            "holiday": "CHINA", //中国节假日，详见holidays.json
+>            "name": "上证ETF", //名称
+>            "precision": 2, //
+>            "pricemode": 1, //
+>            "pricetick": 0.001, //价格变动单位
+>            "session": "SD0930", //交易时间，详见sessions.json
+>            "volscale": 1, //
+>            "trademode": 2 //0、多空 1、T0做多(可转债) 2、T1做多(股票/ETF)
+>        }
+>    }
+> }
+> ```
+
+
+
+### 二、自定义参数配置
+
+1. 实时数据写盘控制
+
+   行情机数据配置文件dtcfg
+
+   ![](image/wtdatadtcfg.png)
+
+2. 
+
+   
+
+
+
+### 三、输出日志分类
+
+各类日志的输出格式以及目录，包括以下几类日志
+
+- Executer 执行器日志
+- Parser 行情服务日志
+- Trader 交易服务日志
+- Strategy 策略日志
+- Risk 风控日志
+- generated 回测日志
 
