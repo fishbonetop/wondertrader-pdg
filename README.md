@@ -222,7 +222,8 @@ Ubuntu 18.04.3 LTS
    用文本编辑工具打开：***d:>\wondertrader\wtcpp\demos\cta_fut_bt\\configbt.YAML***
 
    - *修改回测时间范围*
-   - *回测使用**csv**或者**tick**模式*
+   - *修改数据路径*
+   - *修改回测使用**csv**或者**tick**模式*
    - ***cta**引擎*
 
    ![](image/btwtpy.png)
@@ -231,43 +232,41 @@ Ubuntu 18.04.3 LTS
 
    执行所在目录：**demos\cta_fut_bt**
 
-   启动执行：**runBT**
+   启动执行前修改：**runBT.py**
+
+   - *测试时间范围*
+   - *策略参数*
+   - *数据路径*
+   - *回测模式 csv / tick*
+
+   启动执行回测：**runBT**
 
    ```python
-   from wtpy import WtBtEngine,EngineType              # 引入wtpy的回测引擎
-   from wtpy.apps import WtBtAnalyst                   # 引入分析工具
+   from wtpy import WtBtEngine,EngineType
+   from wtpy.apps import WtBtAnalyst
    
-   from Strategies.DualThrust import StraDualThrust    # 引入自己的策略
+   from Strategies.DualThrust import StraDualThrust
    
-   import os
-   import sys
-   os.chdir(sys.path[0])
+   # from Strategies.XIM import XIM
+   
    if __name__ == "__main__":
-       #创建一个运行环境，制定回测引擎为CTA，并制定日志配置文件
-       engine = WtBtEngine(EngineType.ET_CTA,logCfg="logcfgbt.yaml")    
-       # 初始化引擎，指定基础配置文件目录，以及策略配置文件
+       #创建一个运行环境，并加入策略
+       engine = WtBtEngine(EngineType.ET_CTA)
        engine.init('../common/', "configbt.yaml")
-       # 确定回测时间，也可以在策略配置文件中指定
-       engine.configBacktest(202201100930,202202011500)
-       # 提交配置
+       engine.configBacktest(202203280930,202203291500)
+       engine.configBTStorage(mode="csv", path="../FUT_Data/")
        engine.commitBTConfig()
    
-       # 初始化策略类
-       straInfo1 = StraDualThrust(name='pydt_cu', code="SHFE.cu.HOT", barCnt=50, period="m5", days=30, k1=0.1, k2=0.1, isForStk=False)
-       # 将策略加入到回测环境中
-       engine.set_cta_strategy(straInfo1)
-       # 开启回测
+       straInfo = StraDualThrust(name='pydt_IF', code="SHFE.ag.2206", barCnt=50, period="m1", days=30, k1=0.1, k2=0.1, isForStk=False)
+       engine.set_cta_strategy(straInfo)
+   
        engine.run_backtest()
    
-       # 初始化分析器
        analyst = WtBtAnalyst()
-       # 添加需要分析的策略，指定策略回测结果所在目录
-       analyst.add_strategy("pydt_cu", folder="./outputs_bt/pydt_cu/", init_capital=500000, rf=0.02, annual_trading_days=240)
-       # 开始分析
+       analyst.add_strategy("pydt_IF", folder="./outputs_bt/pydt_IF/", init_capital=500000, rf=0.02, annual_trading_days=240)
        analyst.run()
    
        kw = input('press any key to exit\n')
-       # 结束，释放资源
        engine.release_backtest()
    ```
 
