@@ -320,7 +320,7 @@ Ubuntu 18.04.3 LTS
      days        策略算法参数，算法引用的历史数据条数
      k1          策略算法参数，上边界系数
      k2          策略算法参数，下边界系数
-     isForStk    DualThrust策略用于控制交易品种的代码
+     isForStk    DualThrust策略用于控制交易品种的代码（期货或者股票）
      ```
 
    - 策略源码
