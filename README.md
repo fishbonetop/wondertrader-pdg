@@ -14,6 +14,10 @@ WonderTrader（官方github）
 
 https://github.com/wondertrader
 
+WonderTrader讨论区
+
+https://github.com/wondertrader/wondertrader/discussions
+
 ------
 
 ## 功能简介：
@@ -64,7 +68,7 @@ Ubuntu 18.04.3 LTS
    检查方法如下：
 
    ```css
-   1、打开cmd，输入python，点击回车
+   1、快捷键win+r打开cmd，输入python，点击回车
    2、输入import this，欣赏下python之禅
    3、输入pip list，检查安装了哪些第三方的安装包
    4、输入exit()，退出python
