@@ -971,6 +971,8 @@ Python下的demo主要演示不同环境下不同组件的使用
 
    ![](image/wtdatadtcfg.png)
 
+2. 多个执行器的配置
+
 2. 
 
    
@@ -988,3 +990,12 @@ Python下的demo主要演示不同环境下不同组件的使用
 - Risk 风控日志
 - generated 回测日志
 
+
+
+文档资料：
+
+wt4elegantrl是基于wtpy开发的gym格式强化学习环境，用于支持交易场景下使用强化学习算法进行训练。
+
+https://gitee.com/panyunan/wt4elegantrl-doc
+
+https://github.com/drlgistics/Wt4ElegantRL
