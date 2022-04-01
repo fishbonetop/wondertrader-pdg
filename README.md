@@ -53,7 +53,7 @@ Ubuntu 18.04.3 LTS
 
 ### 一、wtpy应用框架
 
-**【1】安装 Python（版本3.6以上，32位或64位）**
+**【1】安装 Python（版本3.6以上，32位或64位，windows操作系统）**
 
 1. 下载地址：https://www.python.org/downloads/
 
