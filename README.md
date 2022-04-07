@@ -281,7 +281,7 @@ Ubuntu 18.04.3 LTS
 
 
 
-# 策略实现：
+# 策略DEMO：
 
 ### 一、CTA引擎
 
@@ -1203,7 +1203,7 @@ Python下的demo主要演示不同环境下不同组件的使用
 - Trader 交易服务日志
 - Strategy 策略日志
 - Risk 风控日志
-- generated 回测日志
+- generated 持仓交易日志
 
 
 
@@ -1221,32 +1221,7 @@ Python下的demo主要演示不同环境下不同组件的使用
 
   
 
-# 交易引擎说明
 
-- CTA引擎
-  - [事件函数](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/1.交易引擎/1.CTA引擎/事件函数.html)
-  - [上下文](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/1.交易引擎/1.CTA引擎/上下文.html)
-- HFT引擎
-  - [事件函数](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/1.交易引擎/2.HFT引擎/事件函数.html)
-  - [上下文](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/1.交易引擎/2.HFT引擎/上下文.html)
-- SEL引擎
-  - [事件函数](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/1.交易引擎/3.SEL引擎/事件函数.html)
-  - [上下文](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/1.交易引擎/3.SEL引擎/上下文.html)
-- UFT引擎
-  - [事件函数](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/1.交易引擎/4.UFT引擎/事件函数.html)
-  - [上下文](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/1.交易引擎/4.UFT引擎/上下文.html)
-
-# 
-
-
-
-文档资料：
-
-wt4elegantrl是基于wtpy开发的gym格式强化学习环境，用于支持交易场景下使用强化学习算法进行训练。
-
-https://gitee.com/panyunan/wt4elegantrl-doc
-
-https://github.com/drlgistics/Wt4ElegantRL
 
 
 
