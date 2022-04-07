@@ -349,10 +349,14 @@ Ubuntu 18.04.3 LTS
              code = self.__code__    #品种代码
              if self.__is_stk__:
                  code = code + "Q"
-     
+             # 订阅K线
              context.stra_get_bars(code, self.__period__, self.__bar_cnt__, isMain = True)
+     		# 订阅Tick
+         	# context.stra_sub_ticks(code)
+             
              context.stra_log_text("DualThrust inited")
-     
+     	
+         # K线闭合时调用，一般作为策略的核心计算模块
          def on_calculate(self, context:Context):
              '''
              策略主调函数，所有的计算逻辑都在这里完成
@@ -450,7 +454,7 @@ Ubuntu 18.04.3 LTS
          env = WtEngine(EngineType.ET_CTA)       #交易引擎类
          env.init('../common/', "config.yaml")   #初始化配置
          
-         #DualThrust策略
+         #DualThrust策略，参数自定义
          straInfo = StraDualThrust(name='pydt_IF', code="SHFE.ag.2206", barCnt=50, period="m1", days=30, k1=0.2, k2=0.2, isForStk=False)
          env.add_cta_strategy(straInfo)   #实盘可添加多个CTA引擎的策略对象
      
@@ -676,6 +680,183 @@ Ubuntu 18.04.3 LTS
 
 【1】wtpy应用交易策略
 
+```python
+from wtpy import BaseHftStrategy
+from wtpy import HftContext
+
+from datetime import datetime
+
+def makeTime(date:int, time:int, secs:int):
+    '''
+    将系统时间转成datetime\n
+    @date   日期，格式如20200723\n
+    @time   时间，精确到分，格式如0935\n
+    @secs   秒数，精确到毫秒，格式如37500
+    '''
+    return datetime(year=int(date/10000), month=int(date%10000/100), day=date%100, 
+        hour=int(time/100), minute=time%100, second=int(secs/1000), microsecond=secs%1000*1000)
+
+class HftStraDemo(BaseHftStrategy):
+
+    def __init__(self, name:str, code:str, expsecs:int, offset:int, freq:int=30):
+        BaseHftStrategy.__init__(self, name)
+
+        '''交易参数'''
+        self.__code__ = code            #交易合约
+        self.__expsecs__ = expsecs      #订单超时秒数
+        self.__offset__ = offset        #指令价格偏移
+        self.__freq__ = freq            #交易频率控制，指定时间内限制信号数，单位秒
+
+        '''内部数据'''
+        self.__last_tick__ = None       #上一笔行情
+        self.__orders__ = dict()        #策略相关的订单
+        self.__last_entry_time__ = None #上次入场时间
+        self.__cancel_cnt__ = 0         #正在撤销的订单数
+        self.__channel_ready__ = False  #通道是否就绪
+        
+	# 订阅行情数据，加载外部数据
+    def on_init(self, context:HftContext):
+        '''
+        策略初始化，启动的时候调用\n
+        用于加载自定义数据\n
+        @context    策略运行上下文
+        '''
+
+        #先订阅实时数据
+        context.stra_sub_ticks(self.__code__)
+
+        self.__ctx__ = context
+
+    def check_orders(self):
+        #如果未完成订单不为空
+        if len(self.__orders__.keys()) > 0 and self.__last_entry_time__ is not None:
+            #当前时间，一定要从api获取，不然回测会有问题
+            now = makeTime(self.__ctx__.stra_get_date(), self.__ctx__.stra_get_time(), self.__ctx__.stra_get_secs())
+            span = now - self.__last_entry_time__
+            if span.total_seconds() > self.__expsecs__: #如果订单超时，则需要撤单
+                for localid in self.__orders__:
+                    self.__ctx__.stra_cancel(localid)
+                    self.__cancel_cnt__ += 1
+                    self.__ctx__.stra_log_text("cancelcount -> %d" % (self.__cancel_cnt__))
+
+    def on_tick(self, context:HftContext, stdCode:str, newTick:dict):
+        if self.__code__ != stdCode:
+            return
+
+        #如果有未完成订单，则进入订单管理逻辑
+        if len(self.__orders__.keys()) != 0:
+            self.check_orders()
+            return
+
+        if not self.__channel_ready__:
+            return
+
+        self.__last_tick__ = newTick
+
+        #如果已经入场，则做频率检查
+        if self.__last_entry_time__ is not None:
+            #当前时间，一定要从api获取，不然回测会有问题
+            now = makeTime(self.__ctx__.stra_get_date(), self.__ctx__.stra_get_time(), self.__ctx__.stra_get_secs())
+            span = now - self.__last_entry_time__
+            if span.total_seconds() <= 30:
+                return
+
+        #信号标志
+        signal = 0
+        #最新价作为基准价格
+        price = newTick["price"]
+        #计算理论价格()
+        pxInThry = (newTick["bid_prices_0"]*newTick["ask_qty_0"] + newTick["ask_prices_0"]*newTick["bid_qty_0"]) / (newTick["ask_qty_0"] + newTick["bid_qty_0"])
+
+        context.stra_log_text("理论价格%f，最新价：%f" % (pxInThry, price))
+
+        if pxInThry > price:    #理论价格大于最新价，正向信号
+            signal = 1
+            context.stra_log_text("出现正向信号")
+        elif pxInThry < price:  #理论价格小于最新价，反向信号
+            signal = -1
+            context.stra_log_text("出现反向信号")
+
+        if signal != 0:
+            #读取当前持仓
+            curPos = context.stra_get_position(self.__code__)
+            #读取品种属性，主要用于价格修正
+            commInfo = context.stra_get_comminfo(self.__code__)
+            #当前时间，一定要从api获取，不然回测会有问题
+            now = makeTime(self.__ctx__.stra_get_date(), self.__ctx__.stra_get_time(), self.__ctx__.stra_get_secs())
+
+            #如果出现正向信号且当前仓位小于等于0，则买入
+            if signal > 0 and curPos <= 0:
+                #买入目标价格=基准价格+偏移跳数*报价单位
+                targetPx = price + commInfo.pricetick * self.__offset__
+
+                #执行买入指令，返回所有订单的本地单号
+                ids = context.stra_buy(self.__code__, targetPx, 1, "buy")
+
+                #将订单号加入到管理中
+                for localid in ids:
+                    self.__orders__[localid] = localid
+                
+                #更新入场时间
+                self.__last_entry_time__ = now
+
+            #如果出现反向信号且当前持仓大于等于0，则卖出
+            elif signal < 0 and curPos >= 0:
+                #买入目标价格=基准价格-偏移跳数*报价单位
+                targetPx = price - commInfo.pricetick * self.__offset__
+
+                #执行卖出指令，返回所有订单的本地单号
+                ids = context.stra_sell(self.__code__, targetPx, 1, "sell")
+
+                #将订单号加入到管理中
+                for localid in ids:
+                    self.__orders__[localid] = localid
+                
+                #更新入场时间
+                self.__last_entry_time__ = now
+
+
+    def on_bar(self, context:HftContext, stdCode:str, period:str, newBar:dict):
+        return
+
+    def on_channel_ready(self, context:HftContext):
+        undone = context.stra_get_undone(self.__code__)
+        if undone != 0 and len(self.__orders__.keys()) == 0:
+            context.stra_log_text("%s存在不在管理中的未完成单%f手，全部撤销" % (self.__code__, undone))
+            isBuy = (undone > 0)
+            ids = context.stra_cancel_all(self.__code__, isBuy)
+            for localid in ids:
+                self.__orders__[localid] = localid
+            self.__cancel_cnt__ += len(ids)
+            context.stra_log_text("cancelcnt -> %d" % (self.__cancel_cnt__))
+        self.__channel_ready__ = True
+
+    def on_channel_lost(self, context:HftContext):
+        context.stra_log_text("交易通道连接丢失")
+        self.__channel_ready__ = False
+
+    def on_entrust(self, context:HftContext, localid:int, stdCode:str, bSucc:bool, msg:str, userTag:str):
+        if bSucc:
+            context.stra_log_text("%s下单成功，本地单号：%d" % (stdCode, localid))
+        else:
+            context.stra_log_text("%s下单失败，本地单号：%d，错误信息：%s" % (stdCode, localid, msg))
+
+    def on_order(self, context:HftContext, localid:int, stdCode:str, isBuy:bool, totalQty:float, leftQty:float, price:float, isCanceled:bool, userTag:str):
+        if localid not in self.__orders__:
+            return
+
+        if isCanceled or leftQty == 0:
+            self.__orders__.pop(localid)
+            if self.__cancel_cnt__ > 0:
+                self.__cancel_cnt__ -= 1
+                self.__ctx__.stra_log_text("cancelcount -> %d" % (self.__cancel_cnt__))
+        return
+
+    def on_trade(self, context:HftContext, localid:int, stdCode:str, isBuy:bool, qty:float, price:float, userTag:str):
+        return
+
+```
+
 【2】wtcpp应用交易策略
 
 
@@ -695,6 +876,10 @@ Ubuntu 18.04.3 LTS
 密码：**Helloworld!**
 
 ![](image/wtconsole.png)
+
+https://zhuanlan.zhihu.com/p/446294307
+
+
 
 # demo演示说明：
 
@@ -969,15 +1154,45 @@ Python下的demo主要演示不同环境下不同组件的使用
 
    行情机数据配置文件dtcfg
 
-   ![](image/wtdatadtcfg.png)
-
-2. 多个执行器的配置
-
-2. 
+   ```python
+   writer:
+       module: WtDtStorage #数据存储模块
+       async: true         #同步落地还是异步落地，期货推荐同步，股票推荐异步
+       groupsize: 20       #日志分组大小，主要用于控制日志输出，当订阅合约较多时，推荐1000以上，当订阅的合约数较少时，推荐100以内
+       path: ../STK_Data   #数据存储的路径
+       savelog: false      #是否保存tick到csv
+       disabletick: false    #不保存tick数据，默认false
+       disablemin1: false    #不保存min1数据，默认false
+       disablemin5: false    #不保存min5数据，默认false
+       disableday: false     #不保存day数据，默认false
+       disabletrans: false   #不保存股票l2逐笔成交数据，默认false
+       disableordque: false  #不保存股票l2委托队列数据，默认false
+       disableorddtl: false  #不保存股票l2逐笔委托数据，默认false
+   ```
 
    
 
+2. 多个执行器的配置
 
+2. 股票配置
+
+   ```css
+   XTP的测试账号
+   
+   股票只支持标准代码格式
+   SSE.STK.600000
+   SZSE.STK.300342
+   
+   datakit_stk里的mdparser的code配置订阅的股票代码（交易所.代码：SSE.600000）
+   run.py里填写订阅的股票代码（标准代码格式：SSE.STK.600000）
+   https://dumengru.github.io/docs_wondertrader/wtcpp/folder50/file01.html
+   ```
+   
+   
+   
+2. 
+
+   
 
 ### 三、输出日志分类
 
@@ -992,6 +1207,39 @@ Python下的demo主要演示不同环境下不同组件的使用
 
 
 
+# 工具集说明
+
+- [WtMonSvr](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/3.工具集/WtMonSvr.html)
+
+- [ctp_loader](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/3.工具集/ctp_loader.html)
+
+- [hotpicker](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/3.工具集/hotpicker.html)
+
+- [datakit](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/3.工具集/datakit.html)
+
+- [dataFeed](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/3.工具集/dataFeed.html)
+
+  
+
+# 交易引擎说明
+
+- CTA引擎
+  - [事件函数](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/1.交易引擎/1.CTA引擎/事件函数.html)
+  - [上下文](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/1.交易引擎/1.CTA引擎/上下文.html)
+- HFT引擎
+  - [事件函数](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/1.交易引擎/2.HFT引擎/事件函数.html)
+  - [上下文](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/1.交易引擎/2.HFT引擎/上下文.html)
+- SEL引擎
+  - [事件函数](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/1.交易引擎/3.SEL引擎/事件函数.html)
+  - [上下文](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/1.交易引擎/3.SEL引擎/上下文.html)
+- UFT引擎
+  - [事件函数](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/1.交易引擎/4.UFT引擎/事件函数.html)
+  - [上下文](https://zzzzhej.github.io/WonderTrader-Learning-Notes/开发手册/WTPY/1.交易引擎/4.UFT引擎/上下文.html)
+
+# 
+
+
+
 文档资料：
 
 wt4elegantrl是基于wtpy开发的gym格式强化学习环境，用于支持交易场景下使用强化学习算法进行训练。
@@ -999,3 +1247,6 @@ wt4elegantrl是基于wtpy开发的gym格式强化学习环境，用于支持交�
 https://gitee.com/panyunan/wt4elegantrl-doc
 
 https://github.com/drlgistics/Wt4ElegantRL
+
+
+
